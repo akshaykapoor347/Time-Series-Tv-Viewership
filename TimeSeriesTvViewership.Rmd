@@ -1,0 +1,135 @@
+---
+title: "Time series Tv Viewership"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Installing the packages and loading the data
+```{r}
+library(forecast)
+library(ggplot2)
+
+tv <- read.csv("TV_by_network_daypart.csv")
+
+```
+
+
+##Let us convert data into a proper format
+```{r}
+tvf <- sub('(.{4})(.{2})',"\\1-\\2", tv$date)
+tvf <-  as.Date(paste0(tvf, "-01"), "%Y-%m-%d")
+tv$date <- tvf
+```
+
+##Let us split data based on the network type and daypart
+```{r}
+out <- split(tv,list(tv$network,tv$daypart))
+
+plot.ts(tv)
+
+
+for (i in 1:length(out)) {
+  assign(paste0("tv_ts", i), as.data.frame(out[[i]]))
+}
+```
+
+##We create a function which gives us insights about the 55 time series created based on network type and daypart
+
+```{r}
+traintest <- function(a)
+{
+  temp <- a
+  train <- subset(temp, temp$date < "2017-01-01" & temp$date >= "2013-01-01")
+  test <- subset(temp, temp$date >= "2017-01-01")
+  
+  timeseries <- ts(train$viewers, start = 2014-01-01 ,frequency = 12)
+  timeseries1 <- ts(test$viewers, start = 2017-01-01 ,frequency = 12)
+  
+  plot.ts(timeseries)
+  ts_stl <- stl(timeseries, s.window = "period")
+  plot(ts_stl)
+  ts_acf <- acf(timeseries)
+  ts_pacf <- pacf(timeseries)
+  
+  ts_decompose = decompose(timeseries, "additive")
+  #autoplot(ts_decompose) + theme_minimal()
+  plot(ts_decompose) 
+  
+  par(mfrow = c(1,1))
+  ts_Hw <- HoltWinters(timeseries)
+  ts_forecast <- forecast(ts_Hw, h =12)
+  #autoplot(ts_forecast) + theme_minimal()
+  plot(ts_forecast) 
+  lines(timeseries1, col = 'red')
+  
+  mean(abs(test$viewers - ts_forecast$mean ))
+  
+}
+
+```
+
+##We call the function for all the 55 time series 
+```{r }
+traintest(tv_ts1)
+traintest(tv_ts2)
+traintest(tv_ts3)
+traintest(tv_ts4)
+traintest(tv_ts5)
+traintest(tv_ts6)
+traintest(tv_ts7)
+traintest(tv_ts8)
+traintest(tv_ts9)
+traintest(tv_ts10)
+traintest(tv_ts11)
+traintest(tv_ts12)
+traintest(tv_ts13)
+
+traintest(tv_ts14)
+
+traintest(tv_ts15)
+traintest(tv_ts16)
+traintest(tv_ts17)
+traintest(tv_ts18)
+traintest(tv_ts19)
+traintest(tv_ts20)
+traintest(tv_ts21)
+traintest(tv_ts22)
+traintest(tv_ts23)
+traintest(tv_ts24)
+traintest(tv_ts25)
+traintest(tv_ts26)
+traintest(tv_ts27)
+traintest(tv_ts28)
+traintest(tv_ts29)
+traintest(tv_ts30)
+traintest(tv_ts31)
+traintest(tv_ts32)
+traintest(tv_ts33)
+traintest(tv_ts34)
+traintest(tv_ts35)
+traintest(tv_ts36)
+traintest(tv_ts37)
+traintest(tv_ts38)
+traintest(tv_ts39)
+traintest(tv_ts40)
+traintest(tv_ts41)
+traintest(tv_ts42)
+traintest(tv_ts43)
+traintest(tv_ts44)
+traintest(tv_ts45)
+traintest(tv_ts46)
+#traintest(tv_ts47)
+traintest(tv_ts48)
+traintest(tv_ts49)
+#traintest(tv_ts50)
+traintest(tv_ts51)
+traintest(tv_ts52)
+traintest(tv_ts53)
+traintest(tv_ts54)
+traintest(tv_ts55)
+
+
+```
